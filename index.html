@@ -124,11 +124,8 @@
     <!-- UI  -->
     <div id="ui-layer">
         <!--  -->
-        <div class="guide">
+        <div class="guide" id="gesture-guide">
             🖐 <b>Open:</b> Explode &nbsp;|&nbsp; ❤️ <b>Heart:</b> Love &nbsp;|&nbsp; ✊ <b>Fist:</b> Tree
-        </div>
-        <div style="display: inline-block;">
-            <button id="btnStart" onclick="startSystem()" style="background: linear-gradient(to bottom, #D32F2F, #8B0000); min-width: 250px;">✨ START MAGIC</button>
         </div>
     </div>
 
@@ -750,7 +747,6 @@
         }
 
         function startSystem() {
-            document.getElementById('btnStart').style.display = 'none';
             bgMusic.play().catch(e => console.log(e));
             init3D();
             setupMouseControls();
@@ -804,20 +800,12 @@
                 console.log('Không thể truy cập camera, chuyển sang chế độ chuột:', e);
                 useMouse = true;
                 
-                // Customize message based on error type
-                let message = 'Không thể truy cập camera. ';
-                if (e.name === 'NotAllowedError') {
-                    message += 'Bạn đã từ chối quyền truy cập camera. Vui lòng cho phép quyền camera trong cài đặt trình duyệt.\n\n';
-                } else if (e.name === 'NotFoundError') {
-                    message += 'Không tìm thấy camera trên thiết bị của bạn.\n\n';
-                } else {
-                    message += 'Đã xảy ra lỗi khi khởi động camera.\n\n';
-                }
-                message += 'Chuyển sang điều khiển bằng chuột: Click để chuyển trạng thái.';
-                
-                alert(message);
+                // Silently switch to mouse mode without alert
                 // Update guide text
-                document.querySelector('.guide').innerHTML = '🖱 <b>Click:</b> Chuyển trạng thái';
+                const guideEl = document.getElementById('gesture-guide');
+                if (guideEl) {
+                    guideEl.innerHTML = '🖱 <b>Click:</b> Chuyển trạng thái &nbsp;|&nbsp; <b>Scroll:</b> Xoay ảnh';
+                }
                 // Hide camera preview
                 document.getElementById('camera-preview').style.display = 'none';
             }
@@ -825,6 +813,11 @@
 
         window.addEventListener('resize', () => {
             if(camera) { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+        });
+        
+        // Auto-start system when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            startSystem();
         });
     </script>
 </body>
