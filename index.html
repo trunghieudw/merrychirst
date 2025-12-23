@@ -14,13 +14,25 @@
         body { margin: 0; overflow: hidden; background-color: #000000; font-family: 'Segoe UI', sans-serif; }
         #canvas-container { width: 100%; height: 100vh; display: block; }
         
-        /* UI Center Vandiep */
+        /* Customize button - Bottom Left */
+        #customize-container {
+            position: absolute; bottom: 20px; left: 20px;
+            z-index: 100;
+        }
+        #customize-container button {
+            padding: 6px 15px;
+            font-size: 11px;
+            min-width: auto !important;
+            background: linear-gradient(to bottom, #FF6B6B, #C92A2A);
+        }
+        
+        /* UI Center  */
         #ui-layer {
             position: absolute; bottom: 30px; width: 100%;
             text-align: center; pointer-events: none; z-index: 100;
         }
         
-        /* Guide text Vandiep */
+        /* Guide text  */
         .guide { 
             color: rgba(255, 255, 255, 0.6); 
             font-size: 13px; 
@@ -39,7 +51,7 @@
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* Camera Preview Vandiep */
+        /* Camera Preview  */
         #camera-preview {
             position: absolute; top: 15px; right: 15px;
             width: 120px; height: 90px;
@@ -49,7 +61,7 @@
 
         #error-log { display: none; position: absolute; top: 0; left: 0; color: red; background: rgba(0,0,0,0.8); z-index: 999; padding: 10px; }
         
-        /* Upload Panel Vandiep */
+        /* Upload Panel  */
         #upload-panel {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.9); border: 3px solid #FFD700;
@@ -84,7 +96,7 @@
 <body>
     <div id="error-log"></div>
     
-    <!-- Upload Panel Vandiep -->
+    <!-- Upload Panel  -->
     <div id="upload-panel">
         <h2>🎄 🎅Satan’s gift🎁 🎄</h2>
         
@@ -104,15 +116,19 @@
         </div>
     </div>
 
-    <!-- UI Vandiep -->
+    <!-- Customize Button - Top Left -->
+    <div id="customize-container">
+        <button id="btnCustomize" onclick="openUploadPanel()">⚙️ CUSTOMIZE</button>
+    </div>
+    
+    <!-- UI  -->
     <div id="ui-layer">
-        <!-- Vandiep -->
+        <!--  -->
         <div class="guide">
             🖐 <b>Open:</b> Explode &nbsp;|&nbsp; ❤️ <b>Heart:</b> Love &nbsp;|&nbsp; ✊ <b>Fist:</b> Tree
         </div>
         <div style="display: inline-block;">
-            <button id="btnCustomize" onclick="openUploadPanel()" style="background: linear-gradient(to bottom, #FF6B6B, #C92A2A); min-width: 250px;">⚙️ CUSTOMIZE</button>
-            <button id="btnStart" onclick="startSystem()" style="display:none; background: linear-gradient(to bottom, #D32F2F, #8B0000); min-width: 250px;">✨ START MAGIC</button>
+            <button id="btnStart" onclick="startSystem()" style="background: linear-gradient(to bottom, #D32F2F, #8B0000); min-width: 250px;">✨ START MAGIC</button>
         </div>
     </div>
 
@@ -122,7 +138,7 @@
 
     <script>
         // ==========================================
-        // 1. RESOURCES CONFIG Vandiep
+        // 1. RESOURCES CONFIG 
         // ==========================================
         const MUSIC_URL = "./audio.mp3";
         let bgMusic = new Audio(MUSIC_URL);
@@ -188,7 +204,7 @@
         };
 
         // ==========================================
-        // 2. SYSTEM CONFIG Vandiep
+        // 2. SYSTEM CONFIG 
         // ==========================================
         const CONFIG = {
             goldCount: 2000,
@@ -215,7 +231,7 @@
         let raycaster, mouse;
 
         // ==========================================
-        // 3. THREE.JS SYSTEM Vandiep
+        // 3. THREE.JS SYSTEM 
         // ==========================================
         function init3D() {
             const container = document.getElementById('canvas-container');
@@ -253,7 +269,7 @@
             const phases = []; 
             
             for(let i=0; i<count; i++) {
-                // --- TREE Vandiep ---
+                // --- TREE  ---
                 const h = Math.random() * CONFIG.treeHeight; 
                 const y = h - CONFIG.treeHeight / 2;
                 let radiusRatio = (type === 'leaves') ? Math.pow(Math.random(), 0.5) : (type === 'gold') ? Math.sqrt(Math.random()) : 0.9 + Math.random()*0.1;
@@ -262,7 +278,7 @@
                 const theta = Math.random() * Math.PI * 2;
                 pTreeTargets.push(r * Math.cos(theta), y, r * Math.sin(theta));
 
-                // --- EXPLODE Vandiep ---
+                // --- EXPLODE  ---
                 const u = Math.random();
                 const v = Math.random();
                 const phi = Math.acos(2 * v - 1);
@@ -271,12 +287,12 @@
                 const rad = CONFIG.explodeRadius * Math.cbrt(Math.random()) * radMult;
                 pExplodeTargets.push(rad * Math.sin(phi) * Math.cos(lam), rad * Math.sin(phi) * Math.sin(lam), rad * Math.cos(phi));
 
-                // --- SOFT HEART Vandiep ---
+                // --- SOFT HEART  ---
                 const tHeart = Math.random() * Math.PI * 2;
                 let hx = 16 * Math.pow(Math.sin(tHeart), 3);
                 let hy = 13 * Math.cos(tHeart) - 5 * Math.cos(2*tHeart) - 2 * Math.cos(3*tHeart) - Math.cos(4*tHeart);
                 
-                const rFill = Math.pow(Math.random(), 0.3); // Soft fill Vandiep
+                const rFill = Math.pow(Math.random(), 0.3); // Soft fill 
                 hx *= rFill; hy *= rFill;
                 let hz = (Math.random() - 0.5) * 8 * rFill; 
                 
@@ -288,7 +304,7 @@
                 const scaleH = 2.2;
                 pHeartTargets.push(hx * scaleH, hy * scaleH + 5, hz); 
 
-                // --- INIT Vandiep ---
+                // --- INIT  ---
                 pPositions.push(pTreeTargets[i*3], pTreeTargets[i*3+1], pTreeTargets[i*3+2]);
                 sizes.push(size);
                 phases.push(Math.random() * Math.PI * 2);
@@ -298,7 +314,7 @@
             geo.setAttribute('position', new THREE.Float32BufferAttribute(pPositions, 3));
             geo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
             
-            // Init colors Vandiep
+            // Init colors 
             const colors = new Float32Array(count * 3);
             const baseColor = new THREE.Color();
             if(type === 'gold') baseColor.setHex(0xFFD700);
@@ -351,7 +367,7 @@
         }
 
         function createDecorations() {
-            // MERRY CHRISTMAS Vandiep
+            // MERRY CHRISTMAS 
             const canvas = document.createElement('canvas');
             canvas.width = 1024; canvas.height = 256;
             const ctx = canvas.getContext('2d');
@@ -365,7 +381,7 @@
             titleMesh.position.set(0, 50, 0);
             scene.add(titleMesh);
 
-            // STAR Vandiep
+            // STAR 
             const starCanvas = document.createElement('canvas');
             starCanvas.width = 128; starCanvas.height = 128;
             const sCtx = starCanvas.getContext('2d');
@@ -387,7 +403,19 @@
             const loveCanvas = document.createElement('canvas');
             loveCanvas.width = 1024; loveCanvas.height = 256;
             const lCtx = loveCanvas.getContext('2d');
-            lCtx.font = 'bold 120px "Segoe UI", sans-serif';
+            
+            // Auto adjust font size based on text length
+            let loveFontSize = 120;
+            lCtx.font = `bold ${loveFontSize}px "Segoe UI", sans-serif`;
+            let loveTextWidth = lCtx.measureText(customLoveText).width;
+            
+            // Scale down if text is too wide (max width ~900px)
+            while (loveTextWidth > 900 && loveFontSize > 40) {
+                loveFontSize -= 5;
+                lCtx.font = `bold ${loveFontSize}px "Segoe UI", sans-serif`;
+                loveTextWidth = lCtx.measureText(customLoveText).width;
+            }
+            
             lCtx.fillStyle = '#FF69B4'; lCtx.textAlign = 'center';
             lCtx.shadowColor = "#FF1493"; lCtx.shadowBlur = 40; 
             lCtx.fillText(customLoveText, 512, 130);
@@ -410,13 +438,13 @@
             const targetKey = (targetState === 'TREE') ? 'tree' : (targetState === 'HEART' ? 'heart' : 'explode');
             const targets = group.geometry.userData[(targetState === 'PHOTO') ? 'explode' : targetKey];
 
-            // 1. Vandiep
+            // 1. 
             for(let i=0; i<positions.length; i++) {
                 positions[i] += (targets[i] - positions[i]) * speed;
             }
             group.geometry.attributes.position.needsUpdate = true;
             
-            // 2. COLOR & SIZE Vandiep
+            // 2. COLOR & SIZE 
             const count = positions.length / 3;
             
             if (targetState === 'TREE') {
@@ -456,7 +484,7 @@
                 const beatScale = 1 + Math.abs(Math.sin(time * 3)) * 0.15;
                 group.scale.set(beatScale, beatScale, beatScale);
 
-                // Vandiep
+                // 
                 for(let i=0; i<count; i++) {
                     colors[i*3] = baseColor.r; colors[i*3+1] = baseColor.g; colors[i*3+2] = baseColor.b;
                     if (i % 3 === 0) sizes[i] = baseSize;
@@ -605,7 +633,7 @@
         }
 
         // ==========================================
-        // UPLOAD & CUSTOMIZATION FUNCTIONS Vandiep
+        // UPLOAD & CUSTOMIZATION FUNCTIONS 
         // ==========================================
         function openUploadPanel() {
             document.getElementById('upload-panel').style.display = 'block';
@@ -670,12 +698,55 @@
                 });
             }
             
-            closeUploadPanel();
-            alert('✅ Customization saved! Click START MAGIC to begin.');
+            // Update title and love text if scene is already initialized
+            if (titleMesh && loveMesh && scene) {
+                // Update title text
+                const canvas = document.createElement('canvas');
+                canvas.width = 1024; canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                ctx.font = 'bold italic 90px "Times New Roman"';
+                ctx.fillStyle = '#FFD700'; ctx.textAlign = 'center';
+                ctx.shadowColor = "#FF0000"; ctx.shadowBlur = 40; 
+                ctx.fillText(customTitleText, 512, 130);
+                const tex = new THREE.CanvasTexture(canvas);
+                titleMesh.material.map = tex;
+                titleMesh.material.needsUpdate = true;
+                
+                // Update love text
+                const loveCanvas = document.createElement('canvas');
+                loveCanvas.width = 1024; loveCanvas.height = 256;
+                const lCtx = loveCanvas.getContext('2d');
+                
+                // Auto adjust font size based on text length
+                let loveFontSize = 120;
+                lCtx.font = `bold ${loveFontSize}px "Segoe UI", sans-serif`;
+                let loveTextWidth = lCtx.measureText(customLoveText).width;
+                
+                // Scale down if text is too wide (max width ~900px)
+                while (loveTextWidth > 900 && loveFontSize > 40) {
+                    loveFontSize -= 5;
+                    lCtx.font = `bold ${loveFontSize}px "Segoe UI", sans-serif`;
+                    loveTextWidth = lCtx.measureText(customLoveText).width;
+                }
+                
+                lCtx.fillStyle = '#FF69B4'; lCtx.textAlign = 'center';
+                lCtx.shadowColor = "#FF1493"; lCtx.shadowBlur = 40; 
+                lCtx.fillText(customLoveText, 512, 130);
+                const loveTex = new THREE.CanvasTexture(loveCanvas);
+                loveMesh.material.map = loveTex;
+                loveMesh.material.needsUpdate = true;
+            }
             
-            // Show start button
+            closeUploadPanel();
+            
+            // Hide customize button after apply
             document.getElementById('btnCustomize').style.display = 'none';
-            document.getElementById('btnStart').style.display = 'block';
+            
+            if (!scene) {
+                alert('✅ Customization saved! Click START MAGIC to begin.');
+            } else {
+                alert('✅ Customization applied successfully!');
+            }
         }
 
         function startSystem() {
