@@ -755,60 +755,82 @@
             const canvas = document.getElementById('camera-preview');
             const ctx = canvas.getContext('2d');
             
-            try {
-                const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
-                hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-
-                hands.onResults(results => {
-                    ctx.clearRect(0,0,100,75); ctx.drawImage(results.image, 0, 0, 100, 75);
-
-                    // --- Hand Logic  ---
-                    if (results.multiHandLandmarks.length === 2) {
-                        const h1 = results.multiHandLandmarks[0]; const h2 = results.multiHandLandmarks[1];
-                        const distIndex = Math.hypot(h1[8].x - h2[8].x, h1[8].y - h2[8].y);
-                        const distThumb = Math.hypot(h1[4].x - h2[4].x, h1[4].y - h2[4].y);
-                        if (distIndex < 0.15 && distThumb < 0.15) {
-                            state = 'HEART'; return;
-                        }
-                    }
-
-                    if(results.multiHandLandmarks.length > 0) {
-                        const lm = results.multiHandLandmarks[0];
-                        handX = lm[9].x; 
-                        const tips = [8,12,16,20]; const wrist = lm[0];
-                        let openDist = 0; tips.forEach(i => openDist += Math.hypot(lm[i].x-wrist.x, lm[i].y-wrist.y));
-                        const avgDist = openDist / 4;
-                        const pinchDist = Math.hypot(lm[4].x-lm[8].x, lm[4].y-lm[8].y);
-
-                        if (avgDist < 0.25) { 
-                            state = 'TREE'; 
-                        } else if (pinchDist < 0.05) {
-                            state = 'PHOTO'; 
-                        } else {
-                            state = 'EXPLODE'; 
-                        }
-                    } else {
-                        state = 'TREE'; 
-                    }
-                });
-
-                const cameraUtils = new Camera(video, {
-                    onFrame: async () => { await hands.send({image: video}); }, width: 320, height: 240
-                });
-                cameraUtils.start();
-            } catch (e) {
-                console.log('Không thể truy cập camera, chuyển sang chế độ chuột:', e);
-                useMouse = true;
+            // Kiểm tra camera có tồn tại hay không
+            navigator.mediaDevices.enumerateDevices().then(devices => {
+                const hasCamera = devices.some(device => device.kind === 'videoinput');
                 
-                // Silently switch to mouse mode without alert
-                // Update guide text
+                if (!hasCamera) {
+                    // Không có camera, chuyển sang chế độ chuột
+                    console.log('Không có camera, chuyển sang chế độ chuột');
+                    useMouse = true;
+                    const guideEl = document.getElementById('gesture-guide');
+                    if (guideEl) {
+                        guideEl.innerHTML = '🖱 <b>Click:</b> Chuyển trạng thái &nbsp;|&nbsp; <b>Scroll:</b> Xoay ảnh';
+                    }
+                    document.getElementById('camera-preview').style.display = 'none';
+                    return;
+                }
+                
+                // Có camera, khởi động MediaPipe
+                try {
+                    const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+                    hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+
+                    hands.onResults(results => {
+                        ctx.clearRect(0,0,100,75); ctx.drawImage(results.image, 0, 0, 100, 75);
+
+                        // --- Hand Logic  ---
+                        if (results.multiHandLandmarks.length === 2) {
+                            const h1 = results.multiHandLandmarks[0]; const h2 = results.multiHandLandmarks[1];
+                            const distIndex = Math.hypot(h1[8].x - h2[8].x, h1[8].y - h2[8].y);
+                            const distThumb = Math.hypot(h1[4].x - h2[4].x, h1[4].y - h2[4].y);
+                            if (distIndex < 0.15 && distThumb < 0.15) {
+                                state = 'HEART'; return;
+                            }
+                        }
+
+                        if(results.multiHandLandmarks.length > 0) {
+                            const lm = results.multiHandLandmarks[0];
+                            handX = lm[9].x; 
+                            const tips = [8,12,16,20]; const wrist = lm[0];
+                            let openDist = 0; tips.forEach(i => openDist += Math.hypot(lm[i].x-wrist.x, lm[i].y-wrist.y));
+                            const avgDist = openDist / 4;
+                            const pinchDist = Math.hypot(lm[4].x-lm[8].x, lm[4].y-lm[8].y);
+
+                            if (avgDist < 0.25) { 
+                                state = 'TREE'; 
+                            } else if (pinchDist < 0.05) {
+                                state = 'PHOTO'; 
+                            } else {
+                                state = 'EXPLODE'; 
+                            }
+                        } else {
+                            state = 'TREE'; 
+                        }
+                    });
+
+                    const cameraUtils = new Camera(video, {
+                        onFrame: async () => { await hands.send({image: video}); }, width: 320, height: 240
+                    });
+                    cameraUtils.start();
+                } catch (e) {
+                    console.log('Lỗi khi khởi động camera:', e);
+                    useMouse = true;
+                    const guideEl = document.getElementById('gesture-guide');
+                    if (guideEl) {
+                        guideEl.innerHTML = '🖱 <b>Click:</b> Chuyển trạng thái &nbsp;|&nbsp; <b>Scroll:</b> Xoay ảnh';
+                    }
+                    document.getElementById('camera-preview').style.display = 'none';
+                }
+            }).catch(err => {
+                console.log('Lỗi khi kiểm tra camera:', err);
+                useMouse = true;
                 const guideEl = document.getElementById('gesture-guide');
                 if (guideEl) {
                     guideEl.innerHTML = '🖱 <b>Click:</b> Chuyển trạng thái &nbsp;|&nbsp; <b>Scroll:</b> Xoay ảnh';
                 }
-                // Hide camera preview
                 document.getElementById('camera-preview').style.display = 'none';
-            }
+            });
         }
 
         window.addEventListener('resize', () => {
